@@ -1,0 +1,11 @@
+# ignore lib
+lib/*
+
+# ignore pycache
+__pycache__/*
+
+# ignore .pyc
+*.pyc
+
+# ignore notebook checkpoints
+.ipynb_checkpoints/*
