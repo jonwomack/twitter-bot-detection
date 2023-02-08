@@ -17,3 +17,7 @@
     streamlit run streamlit/main.py
     ```
 
+## Design
+
+TODO: Add design, algorithm details. 
+

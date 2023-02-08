@@ -1,11 +1,12 @@
 # ignore lib
 lib/*
 
-# ignore pycache
+# ignore all pycache
 __pycache__/*
 
 # ignore .pyc
 *.pyc
 
-# ignore notebook checkpoints
-.ipynb_checkpoints/*
+# ignore notebook checkpoints everywhere
+**/.ipynb_checkpoints/*
+
