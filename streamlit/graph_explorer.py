@@ -20,10 +20,12 @@ def run_ui():
 
     # nodes.csv upload widget
     with col1:
+        st.markdown("## Upload the nodes file")
         nodes_csv = st.file_uploader('nodes.csv', type='csv', label_visibility="hidden")
 
     # edges.csv upload widget
     with col2:
+        st.markdown("## Upload the edges file")
         edges_csv = st.file_uploader('edges.csv', type='csv', label_visibility="hidden")
 
     # create generate button

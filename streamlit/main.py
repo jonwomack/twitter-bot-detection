@@ -10,11 +10,12 @@ import streamlit as st
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # streamlit pages
-import graph_explorer
+import graph_explorer, bot_detection
 
 # TODO: Add more pages later
 PAGES = [
     'GRAPH EXPLORER',
+    'BOT DETECTION',
 ]
 
 def run_ui():
@@ -32,8 +33,6 @@ def run_ui():
     else:
         page=st.sidebar.radio('Navigation', PAGES, index=0)
 
-    st.experimental_set_query_params(page=page)
-
     # TODO: Add more pages later
     if page == 'GRAPH EXPLORER':
         st.sidebar.write("""
@@ -43,14 +42,18 @@ def run_ui():
 
         graph_explorer.run_ui()
 
+    elif page == 'BOT DETECTION':
+
+        st.sidebar.write("""
+            ## Overview
+            This page presents a bot detection model for the Twitter user network.
+        """)
+
+        bot_detection.run_ui()
+
 if __name__ == "__main__":
     
-    url_params = st.experimental_get_query_params()
-    if 'loaded' not in st.session_state:
-        if len(url_params.keys()) == 0:
-            st.experimental_set_query_params(page='GRAPH EXPLORER')
-            url_params = st.experimental_get_query_params()
-
-        st.session_state.page = PAGES.index(url_params['page'][0])
+    # show the graph explorer page by default
+    st.session_state.page = 0
     
     run_ui()
