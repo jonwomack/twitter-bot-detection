@@ -1,7 +1,7 @@
 import csv
 
 unique_accounts = []
-with open('graphwave-database-6000.csv', 'r') as file:
+with open('graphwave-database-twibot20-6000subsampled.txt', 'r') as file:
     lines = file.readlines()
     for row in lines:
         entry1, entry2 = row.split(',')
