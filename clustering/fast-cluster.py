@@ -1,18 +1,13 @@
+import argparse
+import os
+import pickle
 import numpy as np
 from sklearn.datasets import make_blobs
 from fastcluster import linkage
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram
-
-
-n = 100
-
-# Generate synthetic dataset with n points in 100 dimensions and 3 blobs
-X, y = make_blobs(n_samples=n, n_features=100, centers=3, random_state=42)
-
-# Use fastcluster to cluster the data
-Z = linkage(X, method='ward')
+import matplotlib.pyplot as plt
 
 
 def getClusterItemInds(index, dendo = None):
@@ -53,7 +48,6 @@ def getClusterItemInds(index, dendo = None):
   indices.extend(getClusterItemInds(indB, dendo))
   
   return indices
-
 
 def getRootClusterIndex(dendo = None):
   """
@@ -96,41 +90,92 @@ def getSubClusters(index, dendo = None):
 
   return (int(indA), int(indB))
 
-
-#example workflow
-
-#start at the super node
-supernodeInd = getRootClusterIndex(Z)
-
-#investigate the items in the supernode
-items = getClusterItemInds(supernodeInd, Z)
-
-#use items to generate visualization
-embeddings = [X[items] for ind in items]
-
-#get ids of its two sub-clusters
-clustA, clustB = getSubClusters(supernodeInd, Z)
-
-#select sub-cluster clustA items to investigate
-itemsA = getClusterItemInds(clustA, Z)
-
-#use itemsA to generate visualization
-
-#repeat
-
-dendro = dendrogram(Z)
-
-# Visualize the dendrogram
-plt.title('Dendrogram')
-plt.ylabel('Distance')
-plt.show()
+def getHeterogenity(items, ground_truths):
+   cluster_ground_truths = [ground_truths[i] for i in items]
+   return sum(cluster_ground_truths)/len(cluster_ground_truths)
 
 
-# Visualize the clusters in 2D using t-SNE
-X_embedded = TSNE(n_components=2, perplexity=30, random_state=42).fit_transform(X)
+
+def plotHeterogenity(id_embedding_probability_file):
+    graph_embedding_path = "../graph-embedding/"
+    # Open the file in binary mode
+
+    user_id = []
+    probabilities = []
+    np_embeddings = []
+    ground_truths = []
+    with open(graph_embedding_path + id_embedding_probability_file, 'rb') as file:
+        
+        # Call load method to deserialze
+        id_embedding_probability = pickle.load(file)
+        for user in id_embedding_probability:
+            print(user)
+            user_id.append(user[0])
+            string_embedding = np.asarray(user[1])
+            np_embedding = string_embedding.astype(np.float64)
+            np_embeddings.append(np_embedding)
+            probabilities.append(user[2])
+            ground_truths.append(user[3])
+    # print(user_id[0])
+    # print(np_embeddings[0])
+    # print(probabilities[0])
+    # print(ground_truths)
+    np_embeddings = np.asarray(np_embeddings)
+    # Generate synthetic dataset with n points in 100 dimensions and 3 blobs
+    # X, y = make_blobs(n_samples=n, n_features=100, centers=3, random_state=42)
+    # print(y)
+    # # print(X)
+    # print(type(X))
+    X = np_embeddings
+    y = ground_truths
+    # Use fastcluster to cluster the data
+    Z = linkage(X, method='ward')
+
+    #start at the super node
+    supernodeInd = getRootClusterIndex(Z)
+
+    #investigate the items in the supernode
+    items = getClusterItemInds(supernodeInd, Z)
+    # items are 0-indexed, root node has all embeddings
+
+    #get ids of its two sub-clusters
+    clustA, clustB = getSubClusters(supernodeInd, Z)
 
 
-# Plot the results in 2d t-sne
-scatter = plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y, cmap='viridis')
-legend = plt.legend(*scatter.legend_elements(), title="Categories", loc='upper right', bbox_to_anchor=(1.22, 1))
-plt.show()
+    remaining_clusters = [supernodeInd]
+
+    cluster_sizes = []
+    cluster_heterogenities = []
+    while len(remaining_clusters) > 0:
+        current_cluster_idx = remaining_clusters.pop(0)
+        current_cluster_items = getClusterItemInds(current_cluster_idx, Z)    
+        cluster_sizes.append(len(current_cluster_items))
+        cluster_heterogenities.append(getHeterogenity(current_cluster_items, ground_truths))
+        try:
+            clustA, clustB = getSubClusters(current_cluster_idx, Z)
+            remaining_clusters.append(clustA)
+            remaining_clusters.append(clustB)
+        except:
+            continue
+
+    # To select embedding: want high uniformity
+
+    # Starting with ground truth probabilities (i.e. oracle nlp), then move on to erroneous probs
+
+
+    plt.scatter(cluster_sizes, cluster_heterogenities)
+    plt.savefig(os.path.splitext(id_embedding_probability_file)[0] + '.png')
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--path", "-c", type=str, default="approx4sample4-id-emb-prob.pkl", help="P")
+    args = parser.parse_args()
+    embeddings_path = os.path.basename(args.path)
+    print(embeddings_path)
+    plotHeterogenity(embeddings_path)

@@ -1,7 +1,11 @@
+import argparse
 import csv
 import json
+import os
+import pickle
 import random
 from matplotlib import pyplot as plt
+
 
 
 # Get mapping from twitter userid to embedding index
@@ -28,52 +32,67 @@ def trunc_gauss(mu, sigma, bottom, top):
 
 def generate_probabilitity_based_on_ground_truth(ground_truth):
     if ground_truth == 'human':
-        probability = trunc_gauss(.75, .25, 0, 1)
+        probability = trunc_gauss(.75, .15, 0, 1)
     if ground_truth == 'bot':
-        probability = trunc_gauss(.25, .25, 0, 1)
+        probability = trunc_gauss(.25, .15, 0, 1)
     return probability
     
 
-num_labels = 0
-id_embedding_probability = []
-humans = []
-bots = []
-with open("./approx32sample4.csv", 'r') as file:
-    csvreader = csv.reader(file)
-    next(csvreader, None) # skip first row with column titles
-    for row in csvreader:
-        # print(row)
-        # print(row[0])
-        # print("here")
-        key_index_for_userid = values.index(int(row[0]))
 
-        # User ID for visualizing account
-        user_id = keys[key_index_for_userid]
+def saveEmbeddings(embeddings_file):
+    num_labels = 0
+    id_embedding_probability = []
+    humans = []
+    bots = []
+    with open(embeddings_file, 'r') as file:
+        csvreader = csv.reader(file)
+        next(csvreader, None) # skip first row with column titles
+        for row in csvreader:
+            # print(row)
+            # print(row[0])
+            # print("here")
+            key_index_for_userid = values.index(int(row[0]))
 
-        # Embedding for clustering
-        embedding_excluding_idx = row[1::]
+            # User ID for visualizing account
+            user_id = keys[key_index_for_userid]
 
-        # Probability for clustering
-        try:
-            ground_truth = userid_to_ground_truth[user_id]
-            probability = generate_probabilitity_based_on_ground_truth(ground_truth)
-            if ground_truth == 'bot':
-                bots.append(probability)
-            elif ground_truth == 'human':
-                humans.append(probability)
-            else:
-                print("WHUT")
-            num_labels += 1
-        except:
-            continue
+            # Embedding for clustering
+            embedding_excluding_idx = row[1::]
+
+            # Probability for clustering
+            try:
+                ground_truth = userid_to_ground_truth[user_id]
+                probability = generate_probabilitity_based_on_ground_truth(ground_truth)
+                if ground_truth == 'bot':
+                    ground_truth_value = 0
+                    bots.append(probability)
+                elif ground_truth == 'human':
+                    humans.append(probability)
+                    ground_truth_value = 1
+                id_embedding_probability.append([user_id, embedding_excluding_idx, probability, ground_truth_value])
+                num_labels += 1
+            except:
+                continue
 
 
-        # print(row)
+            # print(row)
 
-fig, ax = plt.subplots(figsize =(10, 7))
-ax.hist([bots, humans], bins = 20, color=['red', 'blue'])
+    id_embedding_probability_file = os.path.splitext(embeddings_file)[0] + "-id-emb-prob.pkl"
 
- 
-# Show plot
-plt.show()
+    with open(id_embedding_probability_file, 'wb') as file:
+        pickle.dump(id_embedding_probability, file)
 
+    ## Plot of bots and humans probabilities
+    # fig, ax = plt.subplots(figsize =(10, 7))
+    # ax.hist([bots, humans], bins = 20, color=['red', 'blue'])
+    # # Show plot
+    # plt.show()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--path", "-c", type=str, help="P")
+    args = parser.parse_args()
+    embeddings_path = os.path.basename(args.path)
+    print(embeddings_path)
+    saveEmbeddings(embeddings_path)
