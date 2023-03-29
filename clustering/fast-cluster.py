@@ -94,6 +94,11 @@ def getHeterogenity(items, ground_truths):
    cluster_ground_truths = [ground_truths[i] for i in items]
    return sum(cluster_ground_truths)/len(cluster_ground_truths)
 
+def getProbability(items, probabilties):
+    simulated_cluster_probabilities = [probabilties[i] for i in items]
+    return sum(simulated_cluster_probabilities)/len(simulated_cluster_probabilities)
+
+
 
 
 def plotHeterogenity(id_embedding_probability_file):
@@ -109,13 +114,15 @@ def plotHeterogenity(id_embedding_probability_file):
         # Call load method to deserialze
         id_embedding_probability = pickle.load(file)
         for user in id_embedding_probability:
-            print(user)
             user_id.append(user[0])
             string_embedding = np.asarray(user[1])
             np_embedding = string_embedding.astype(np.float64)
             np_embeddings.append(np_embedding)
             probabilities.append(user[2])
             ground_truths.append(user[3])
+        print(len(probabilities))
+        print(len(ground_truths))
+        print(len(np_embeddings))
     # print(user_id[0])
     # print(np_embeddings[0])
     # print(probabilities[0])
@@ -149,8 +156,12 @@ def plotHeterogenity(id_embedding_probability_file):
     while len(remaining_clusters) > 0:
         current_cluster_idx = remaining_clusters.pop(0)
         current_cluster_items = getClusterItemInds(current_cluster_idx, Z)    
-        cluster_sizes.append(len(current_cluster_items))
-        cluster_heterogenities.append(getHeterogenity(current_cluster_items, ground_truths))
+        # heterogenity = getHeterogenity(current_cluster_items, ground_truths)
+        heterogenity = getProbability(current_cluster_items, probabilities)
+        # if heterogenity < 1:
+        if len(current_cluster_items) < 50:
+            cluster_sizes.append(len(current_cluster_items))
+            cluster_heterogenities.append(heterogenity)
         try:
             clustA, clustB = getSubClusters(current_cluster_idx, Z)
             remaining_clusters.append(clustA)
@@ -179,3 +190,4 @@ if __name__ == "__main__":
     embeddings_path = os.path.basename(args.path)
     print(embeddings_path)
     plotHeterogenity(embeddings_path)
+    print()

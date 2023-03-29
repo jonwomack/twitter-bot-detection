@@ -36,6 +36,22 @@ def generate_probabilitity_based_on_ground_truth(ground_truth):
     if ground_truth == 'bot':
         probability = trunc_gauss(.25, .15, 0, 1)
     return probability
+
+def generate_probability_based_on_ground_truth_binary(ground_truth):
+    classifier_accuracy = .72
+    if ground_truth == 'human':
+        if random.random() < 1 - classifier_accuracy:
+            # mis-classify human as bot 20% of the time i.e. 
+            classification = 0
+        else:
+            classification = 1
+    if ground_truth == 'bot':
+        if random.random() < 1 - classifier_accuracy:
+            # mis-classify bot as human 20% of the time i.e. 
+            classification = 1
+        else:
+            classification = 0
+    return classification
     
 
 
