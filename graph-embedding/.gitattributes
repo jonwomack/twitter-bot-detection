@@ -7,3 +7,11 @@ twi20approx4sample8.csv filter=lfs diff=lfs merge=lfs -text
 twi20approx8sample4.csv filter=lfs diff=lfs merge=lfs -text
 twi20approx8sample8.csv filter=lfs diff=lfs merge=lfs -text
 twi20approx4sample16.csv filter=lfs diff=lfs merge=lfs -text
+twi20approx16sample32.csv filter=lfs diff=lfs merge=lfs -text
+twi20approx16sample4.csv filter=lfs diff=lfs merge=lfs -text
+twi20approx16sample64.csv filter=lfs diff=lfs merge=lfs -text
+twi20approx16sample8.csv filter=lfs diff=lfs merge=lfs -text
+twi20approx32sample4.csv filter=lfs diff=lfs merge=lfs -text
+twi20approx32sample8.csv filter=lfs diff=lfs merge=lfs -text
+twi20approx8sample64.csv filter=lfs diff=lfs merge=lfs -text
+twi20approx16sample16.csv filter=lfs diff=lfs merge=lfs -text
