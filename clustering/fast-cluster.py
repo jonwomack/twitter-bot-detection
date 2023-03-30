@@ -109,6 +109,7 @@ def plotHeterogenity(id_embedding_probability_file):
     probabilities = []
     np_embeddings = []
     ground_truths = []
+    selected_clusters = []
     with open(graph_embedding_path + id_embedding_probability_file, 'rb') as file:
         
         # Call load method to deserialze
@@ -159,24 +160,36 @@ def plotHeterogenity(id_embedding_probability_file):
         # heterogenity = getHeterogenity(current_cluster_items, ground_truths)
         heterogenity = getProbability(current_cluster_items, probabilities)
         # if heterogenity < 1:
-        if len(current_cluster_items) < 50:
+        if len(current_cluster_items) < 100:
             cluster_sizes.append(len(current_cluster_items))
             cluster_heterogenities.append(heterogenity)
+            if heterogenity < .5:
+                selected_embeddings = [np_embeddings[i] for i in current_cluster_items]
+                selected_userids = [user_id[i] for i in current_cluster_items]
+                # print(selected_embeddings)
+                # print(selected_userids)
+                selected_clusters.append([selected_embeddings, selected_userids])
         try:
             clustA, clustB = getSubClusters(current_cluster_idx, Z)
             remaining_clusters.append(clustA)
             remaining_clusters.append(clustB)
         except:
             continue
+    selected_clusters_sorted = sorted(selected_clusters, key=lambda x: len(x[0]), reverse=True)    
+    selected_clusters_sorted_file = id_embedding_probability_file.split("-", 1)[0] + "-ui.pkl"
+    with open(selected_clusters_sorted_file, 'wb') as file:
+        pickle.dump(selected_clusters_sorted, file)
 
     # To select embedding: want high uniformity
 
     # Starting with ground truth probabilities (i.e. oracle nlp), then move on to erroneous probs
 
 
-    plt.scatter(cluster_sizes, cluster_heterogenities)
-    plt.savefig(os.path.splitext(id_embedding_probability_file)[0] + '.png')
+    # Plotting
+    # plt.scatter(cluster_sizes, cluster_heterogenities)
+    # plt.savefig(os.path.splitext(id_embedding_probability_file)[0] + '.png')
 
+    # Handoff to UI
 
 
 
