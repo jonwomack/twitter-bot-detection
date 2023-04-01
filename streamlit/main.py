@@ -14,8 +14,8 @@ import graph_explorer, bot_detection
 
 # TODO: Add more pages later
 PAGES = [
-    'GRAPH EXPLORER',
     'BOT DETECTION',
+    'GRAPH EXPLORER',
 ]
 
 def run_ui():
