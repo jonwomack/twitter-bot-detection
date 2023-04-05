@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 import pickle
 import pandas as pd
@@ -12,19 +13,22 @@ import plotly.express as px
 
 import tweepy
 
-from src.db_utils import get_unlabeled_clusters, get_cluster_embeddings, get_cluster_userids
+from src.db_utils import get_unlabeled_clusters, get_cluster_embeddings, get_cluster_userids, get_user, label_users
 
 # twitter auth for getting user handles
-consumer_key = ''
-consumer_secret = ''
-access_token = ''
-access_token_secret = ''
+consumer_key = 'Tj8ytp2xpBUkBawhnS7wmMKHD'
+consumer_secret = 'Y7HBwxtkK7sCW8QajnJTJr3DZ1tgdUWEJNbaPc4Hfca99OSpxh'
+access_token = '3099917070-ZyVywzZR31Jl4X1Od0f2UHe5zKYPLZbTSdwkTGd'
+access_token_secret = 'P7PhtNbLzp9kKnXHKHdJxvb9d5Nyr5IezPhCOJYIgVVyW'
 auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
 api = tweepy.API(auth)
 
 # append the src directory to the path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.graph import Graph
+
+# global dataframe to store annotation information before submitting
+df = pd.DataFrame(columns=['user_id', 'cluster_id', 'label'])
 
 @st.cache_data
 def embed_tweet(twitter_user_id):
@@ -34,8 +38,6 @@ def embed_tweet(twitter_user_id):
     handle = user.screen_name
     profile_url = f"https://twitter.com/{handle}"
     embed_api = f"https://publish.twitter.com/oembed?url={profile_url}"
-
-    st.markdown(f"### Twitter Profile for handle: {handle}")
 
     # get the html from the api
     response = requests.get(embed_api)
@@ -72,10 +74,10 @@ def generate_tsne_graph(cluster):
     df_embeddings_2d['user_id'] = userids
 
     # create a scatter plot
-    fig = px.scatter(df_embeddings_2d, x='x', y='y', width=600, height=600, hover_data=['user_id'])
+    fig = px.scatter(df_embeddings_2d, x='x', y='y', width=800, height=800, hover_data=['user_id'])
 
     # add a title to the plot
-    fig.update_layout(title_text='t-SNE Visualization of User Embeddings for given cluster')
+    fig.update_layout(title_text='t-SNE Visualization for the given cluster')
 
     # convert plotly figure to html
     html = fig.to_html()
@@ -90,54 +92,111 @@ def run_ui():
     # visualization section
     with col1:
 
-        # create a form to get user input
-        with st.form('graph'):
 
-            # get all the unlabeled clusters
-            clusters = get_unlabeled_clusters()
+        # get all the unlabeled clusters
+        clusters = get_unlabeled_clusters()
 
-            # create a dropdown to select which cluster to visualize
-            cluster_id = st.selectbox('Select a cluster', options=clusters)
+        # create a dropdown to select which cluster to visualize
+        cluster_id = st.selectbox('SELECT A CLUSTER TO ANNOTATE', options=clusters)
 
-            # create generate button
-            generate_button = st.form_submit_button('Generate Graph')
+        # add line spacing
+        st.markdown('---')
 
-            # if generate button is clicked
-            if generate_button:
-                
-                # centering the graph
-                _, col5, _ = st.columns([1,2,1])
-                with col5:
+        # centering the graph
+        _, col3, _ = st.columns([1,3,1])
+        with col3:
 
-                    with st.spinner('Generating Graph...'):
+            with st.spinner('Generating Graph...'):
 
-                        cluster_embeds = get_cluster_embeddings(cluster_id)
-                        cluster_userids = get_cluster_userids(cluster_id)
+                cluster_embeds = get_cluster_embeddings(cluster_id)
+                cluster_userids = get_cluster_userids(cluster_id)
 
-                        # generate graph for the selected cluster
-                        html = generate_tsne_graph([cluster_embeds, cluster_userids])
-                        components.html(html, width=600, height=600)
+                # generate graph for the selected cluster
+                html = generate_tsne_graph([cluster_embeds, cluster_userids])
+                components.html(html, width=800, height=800)
+
 
     # human in loop section
     with col2:
 
+        # get the twitter id to search
+        twitter_user_id = st.selectbox('SEARCH BY ID', options=cluster_userids)
+
+        # add line spacing
+        st.markdown('---')
+
+        # add this twitter id to the session state
+        st.session_state['twitter_user_id'] = twitter_user_id
+
         # create a form to get user input
         with st.form('analyse'):
 
-            st.markdown("## Analyse")
+            # # load the twitter profile as an iframe when the user selects a twitter id
+            with st.spinner('Loading Profile...'):
 
-            # if generate button is clicked
-            if generate_button:
+                twitter_user_id = st.session_state['twitter_user_id']
+                components.html(embed_tweet(twitter_user_id), height=500, scrolling=True)
+
+                # get user information from db and display
+                user = get_user(twitter_user_id)
+
+                user_id = user[0]
+                cluster_id = user[1]
+                label = user[2]
+
+                # display information as a table
+                _, col6, _ = st.columns([1,3,1])
+                with col6:
+                    st.dataframe(pd.DataFrame({'TWITTER ID': [user_id], 'CLUSTER ID': [cluster_id], 'LABEL': [label]}), use_container_width=True)
+
+                # annotation section
+                _, col7, _ = st.columns([1,1,1])
+                with col7:
+                    # user input to determine if bot or not
+                    label = st.radio('Label', options=['BOT', 'NOT BOT'], horizontal=True, label_visibility='collapsed')
                 
-                # get the twitter id to search
-                twitter_user_id = st.selectbox('Search by ID', options=cluster_userids)
+                    # submit button
+                    mark_button = st.form_submit_button('MARK', use_container_width=True)
 
-                # # load the twitter profile as an iframe when the user selects a twitter id
-                with st.spinner('Loading Profile...'):
-                    components.html(embed_tweet(twitter_user_id), width=600, height=600, scrolling=True)
+            # if the user clicks submit, add the information to the dataframe
+            if mark_button:
 
-                # user input to determine if bot or not
-                is_bot = st.radio('Is this a bot?', options=['Yes', 'No'])
+                # check if this row is already in the dataframe
+                if df[df['user_id'] == twitter_user_id].empty:
+                    # add the information to the dataframe
+                    df.loc[len(df)] = [twitter_user_id, cluster_id, 2 if label == 'BOT' else 1]
+                else:
+                    # update the information in the dataframe
+                    df.loc[df['user_id'] == twitter_user_id, 'label'] = 2 if label == 'BOT' else 1
 
-            # submit button
-            submit_button = st.form_submit_button('Submit')
+    # show the annotations done so far
+    st.markdown('---')
+    
+    _, col4, _ = st.columns([1,3,1])
+    with col4:
+        st.dataframe(df, use_container_width=True)
+
+        _, col5, _ = st.columns([1,3,1])
+        with col5:
+            # submit button to save the annotations to the database
+            submit_button = st.button('SAVE ANNOTATIONS TO DATABASE', use_container_width=True)
+
+            # if the user clicks submit, save the annotations to the database
+            if submit_button:
+
+                # save the annotations to the database
+                label_users(df)
+
+                # clear the dataframe
+                df.drop(df.index, inplace=True)
+
+                # clear the session state
+                st.session_state.clear()
+
+                # show a success message
+                st.success('Annotations saved successfully!')
+
+                # wait for 3 seconds and then reload the page
+                time.sleep(3)
+                st.experimental_rerun()
+

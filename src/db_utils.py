@@ -209,5 +209,92 @@ def get_unlabeled_clusters():
     conn.close()
 
     return clusters
-            
+
+def get_user(user_id):
+    """
+    Return all information about a user
+    Args:
+        user_id (str): twitter user id
+    """
+
+    # open a connection to the database
+    conn = sqlite3.connect(db_path)
+
+    # get a cursor
+    c = conn.cursor()
+
+    # get the user
+    c.execute(
+        """
+            SELECT * FROM users WHERE user_id = ?
+        """,
+        (user_id,)
+    )
+
+    # get the user
+    user = c.fetchone()
+
+    # close the connection
+    conn.close()
+
+    return user
+
+
+def label_users(annot_information):
+    """
+    Given the annotation information from the frontend, update the database with the labels.
+    First, we assign labels to user if it has been manually annotated. For the remaining users in the cluster,
+    we assign the label of the majority of the users in the cluster.
+    Args:
+        annot_information (pd.DataFrame): annotation information from the frontend
+    """
+
+    # open a connection to the database
+    conn = sqlite3.connect(db_path)
+
+    # get a cursor
+    c = conn.cursor()
+
+    # get the cluster ids
+    cluster_ids = annot_information['cluster_id'].unique()
+
+    # iterate over the clusters
+    for cluster_id in cluster_ids:
+
+        # get the annotation information for this cluster
+        cluster_annot = annot_information[annot_information['cluster_id'] == cluster_id]
+
+        # get the user ids in this cluster
+        user_ids = cluster_annot['user_id'].unique()
+
+        # get the max label for this cluster
+        max_label = cluster_annot['label'].value_counts().idxmax()
+
+        # update db to reflect the labels for this cluster
+        c.execute(
+            """
+                UPDATE users SET label = ? WHERE cluster_id = ?;
+            """,
+            (2 if max_label == 'Yes' else 1, cluster_id)
+        )
+
+        # iterate over the annotated users in this cluster and update db for each user
+        for user_id in user_ids:
+
+            # get the label for this user
+            label = cluster_annot[cluster_annot['user_id'] == user_id]['label'].values[0]
+
+            # update the db
+            c.execute(
+                """
+                    UPDATE users SET label = ? WHERE user_id = ?;
+                """,
+                (2 if label == 'Yes' else 1, user_id)
+            )
+        
+        # commit the changes
+        conn.commit()
+
+    # close the connection
+    conn.close()
 
