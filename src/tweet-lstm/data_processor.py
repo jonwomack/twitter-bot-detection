@@ -142,9 +142,6 @@ class DataProcessor(object):
         train_features = embed(train_features)
         test_features = embed(test_features)
 
-        train_features = torch.FloatTensor(train_features)
-        test_features = torch.FloatTensor(test_features)
-
         train_features = train_features.float()
         test_features = test_features.float()
 
