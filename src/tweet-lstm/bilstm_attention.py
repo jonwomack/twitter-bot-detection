@@ -26,7 +26,7 @@ num_layers =3
 num_directions = 2
 lr = 1e-3
 batch_size = 16
-epochs = 1 #10
+epochs = 10
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
