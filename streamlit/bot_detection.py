@@ -15,13 +15,36 @@ import tweepy
 
 from src.db_utils import get_unlabeled_clusters, get_cluster_embeddings, get_cluster_userids, get_user, label_users
 
-# twitter auth for getting user handles
-consumer_key = ''
-consumer_secret = ''
-access_token = ''
-access_token_secret = ''
-auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
-api = tweepy.API(auth)
+# TWITTER API CONFIG
+
+# MAKE SURE TO DELETE THIS BEFORE PUSHING TO GITHUB
+bearer_token = ""
+params = {
+    "user.fields": "username"
+}
+headers = {
+    "Authorization": f"Bearer {bearer_token}",
+    "User-Agent": "v2UserLookupPython"
+}
+
+def get_username_by_id(twitter_user_id):
+    """
+    This function gets the username by twitter user id
+    Args:
+        twitter_user_id (int): twitter user id
+    Returns:
+        username (str): twitter username
+    """
+    url = f"https://api.twitter.com/2/users/{twitter_user_id}"
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code != 200:
+        raise Exception(response.status_code, response.text)
+    
+    print(f"response json = {response.json()}")
+
+    username = response.json()['data']['username']
+    return username
 
 # append the src directory to the path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -33,9 +56,7 @@ df = pd.DataFrame(columns=['user_id', 'cluster_id', 'label'])
 @st.cache_data
 def embed_tweet(twitter_user_id):
 
-    # use the twitter api to get the user handle
-    user = api.get_user(user_id=twitter_user_id)
-    handle = user.screen_name
+    handle = get_username_by_id(twitter_user_id)
     profile_url = f"https://twitter.com/{handle}"
     embed_api = f"https://publish.twitter.com/oembed?url={profile_url}"
 
