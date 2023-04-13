@@ -41,8 +41,6 @@ def get_username_by_id(twitter_user_id):
     if response.status_code != 200:
         raise Exception(response.status_code, response.text)
     
-    print(f"response json = {response.json()}")
-
     username = response.json()['data']['username']
     return username
 
@@ -84,7 +82,7 @@ def generate_tsne_graph(cluster):
     embeddings, userids = cluster
 
     # first, initialize a t-SNE object with the desired hyperparameters
-    tsne = TSNE(n_components=2, perplexity=30, learning_rate=200, n_iter=1000)
+    tsne = TSNE(n_components=2, perplexity=10, learning_rate=200, n_iter=1000)
 
     embeddings_2d = tsne.fit_transform(embeddings)
 
