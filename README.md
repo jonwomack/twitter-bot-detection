@@ -10,6 +10,10 @@
     conda env create -f environment.yml
     conda activate tbd
     ```
+- Install a few more dependencies
+
+``` pip install scikit-learn plotly tweepy streamlit==1.20.0```
+
 
 - Start streamlit
         
