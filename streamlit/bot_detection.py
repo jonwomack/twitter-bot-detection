@@ -16,10 +16,10 @@ import tweepy
 from src.db_utils import get_unlabeled_clusters, get_cluster_embeddings, get_cluster_userids, get_user, label_users
 
 # twitter auth for getting user handles
-consumer_key = 'Tj8ytp2xpBUkBawhnS7wmMKHD'
-consumer_secret = 'Y7HBwxtkK7sCW8QajnJTJr3DZ1tgdUWEJNbaPc4Hfca99OSpxh'
-access_token = '3099917070-ZyVywzZR31Jl4X1Od0f2UHe5zKYPLZbTSdwkTGd'
-access_token_secret = 'P7PhtNbLzp9kKnXHKHdJxvb9d5Nyr5IezPhCOJYIgVVyW'
+consumer_key = ''
+consumer_secret = ''
+access_token = ''
+access_token_secret = ''
 auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
 api = tweepy.API(auth)
 
