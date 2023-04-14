@@ -14,6 +14,8 @@
 
 ``` pip install scikit-learn plotly tweepy streamlit==1.20.0```
 
+- Place the bearer token string in ```streamlit/token.txt```
+
 
 - Start streamlit
         
