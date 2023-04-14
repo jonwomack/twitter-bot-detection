@@ -17,8 +17,11 @@ from src.db_utils import get_unlabeled_clusters, get_cluster_embeddings, get_clu
 
 # TWITTER API CONFIG
 
-# MAKE SURE TO DELETE THIS BEFORE PUSHING TO GITHUB
-bearer_token = ""
+# read bearer token from token file
+
+with open('streamlit/token.txt', 'r') as f:
+    bearer_token = f.readline().strip()
+
 params = {
     "user.fields": "username"
 }

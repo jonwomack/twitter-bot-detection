@@ -10,3 +10,6 @@ __pycache__/*
 # ignore notebook checkpoints everywhere
 **/.ipynb_checkpoints/*
 
+# ignore the keyfile
+
+streamlit/token.txt
