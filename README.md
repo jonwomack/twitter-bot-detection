@@ -12,7 +12,9 @@
     ```
 - Install a few more dependencies
 
-``` pip install scikit-learn plotly tweepy streamlit==1.20.0```
+    ```
+    pip install scikit-learn plotly tweepy streamlit==1.20.0
+    ```
 
 - Place the bearer token string in ```streamlit/token.txt```
 
