@@ -2,7 +2,6 @@ import os
 import sys
 import time
 
-import pickle
 import pandas as pd
 import requests
 from sklearn.manifold import TSNE
@@ -11,9 +10,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 import plotly.express as px
 
-import tweepy
-
-from src.db_utils import get_unlabeled_clusters, get_cluster_embeddings, get_cluster_userids, get_user, label_users
+from src.db_utils import get_unlabeled_clusters, get_cluster_embeddings_userids, get_user, label_users
 
 # TWITTER API CONFIG
 
@@ -41,8 +38,8 @@ def get_username_by_id(twitter_user_id):
     url = f"https://api.twitter.com/2/users/{twitter_user_id}"
     response = requests.get(url, headers=headers, params=params)
 
-    if response.status_code != 200:
-        raise Exception(response.status_code, response.text)
+    if 'data' not in response.json():
+        return None
     
     username = response.json()['data']['username']
     return username
@@ -56,19 +53,30 @@ df = pd.DataFrame(columns=['user_id', 'cluster_id', 'label'])
 
 @st.cache_data
 def embed_tweet(twitter_user_id):
+    """
+    This function embeds a tweet in the streamlit app
+    Args:
+        twitter_user_id (int): twitter user id
+    """
 
     handle = get_username_by_id(twitter_user_id)
-    profile_url = f"https://twitter.com/{handle}"
-    embed_api = f"https://publish.twitter.com/oembed?url={profile_url}"
 
-    # get the html from the api
-    response = requests.get(embed_api)
+    # if handle is not none, embed the tweet
+    if handle:
+        profile_url = f"https://twitter.com/{handle}"
+        embed_api = f"https://publish.twitter.com/oembed?url={profile_url}"
 
-    # extract the html from the response
-    html = response.json()['html']
+        # get the html from the api
+        response = requests.get(embed_api)
+
+        # extract the html from the response
+        html = response.json()['html']
+
+    # ekse, return an error message
+    else:
+        html = f"<h2 style='color:white;'> There was an error while embedding tweet</h2>"
 
     return html
-
 @st.cache_data
 def generate_tsne_graph(cluster):
     """
@@ -130,8 +138,8 @@ def run_ui():
 
             with st.spinner('Generating Graph...'):
 
-                cluster_embeds = get_cluster_embeddings(cluster_id)
-                cluster_userids = get_cluster_userids(cluster_id)
+                # get the embeddings and user ids for the selected cluster
+                cluster_embeds, cluster_userids = get_cluster_embeddings_userids(cluster_id)
 
                 # generate graph for the selected cluster
                 html = generate_tsne_graph([cluster_embeds, cluster_userids])
@@ -175,7 +183,7 @@ def run_ui():
                 _, col7, _ = st.columns([1,1,1])
                 with col7:
                     # user input to determine if bot or not
-                    label = st.radio('Label', options=['BOT', 'NOT BOT'], horizontal=True, label_visibility='collapsed')
+                    label = st.radio('Label', options=['BOT', 'HUMAN'], horizontal=True, label_visibility='collapsed')
                 
                     # submit button
                     mark_button = st.form_submit_button('MARK', use_container_width=True)

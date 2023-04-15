@@ -77,8 +77,6 @@ def load_clusters(clusters_path):
             clusters = pickle.load(f)
 
         for cluster_index, cluster in enumerate(clusters):
-
-            print(f"inserting cluster {cluster_index} with {len(cluster[1])} users")
             
             # unpack the cluster
             cluster_embeds, cluster_userids = cluster
@@ -113,45 +111,13 @@ def load_clusters(clusters_path):
         print(f"Failed to load clusters due to error: {e}")
         return False
     
-def get_cluster_embeddings(cluster_id):
+def get_cluster_embeddings_userids(cluster_id):
     """
-    Given a cluster id, get the embeddings of the users in the cluster
+    Given a cluster id, get the embeddings and user ids of the users in the cluster
     Args:
         cluster_id (int): cluster id
     Returns:
         numpy.ndarray: embeddings of the users in the cluster (m, n) where m is the number of users and n is the embedding dimension
-    """
-
-    # open a connection to the database
-    conn = sqlite3.connect(db_path)
-
-    # get a cursor
-    c = conn.cursor()
-
-    # get the embeddings of the users in the cluster
-    c.execute(
-        """
-            SELECT embedding FROM users WHERE cluster_id = ?
-        """,
-        (cluster_id,)
-    )
-
-    # get the embeddings
-    embeddings = c.fetchall()
-
-    # close the connection
-    conn.close()
-
-    # convert the embeddings to a numpy array from buffer
-    return np.array([np.frombuffer(embedding[0], dtype=np.float32) for embedding in embeddings])
-
-
-def get_cluster_userids(cluster_id):
-    """
-    Given a cluster id, get the user ids of the users in the cluster
-    Args:
-        cluster_id (int): cluster id
-    Returns:
         list: list of user ids
     """
 
@@ -161,24 +127,32 @@ def get_cluster_userids(cluster_id):
     # get a cursor
     c = conn.cursor()
 
-    # get the user ids of the users in the cluster
+    # get the embeddings and user ids of the users in the cluster
     c.execute(
         """
-            SELECT user_id FROM users WHERE cluster_id = ?
+            SELECT 
+                embedding, user_id 
+            FROM 
+                users 
+            WHERE 
+                cluster_id = ?
         """,
         (cluster_id,)
     )
 
-    # get the user ids
-    user_ids = c.fetchall()
-
-    # convert to a list
-    user_ids = [user_id[0] for user_id in user_ids]
+    # get the embeddings and user ids
+    embeddings_userids = c.fetchall()
 
     # close the connection
     conn.close()
 
-    return user_ids
+    # get the embeddings
+    embeddings = np.array([np.frombuffer(item[0], dtype=np.float32) for item in embeddings_userids])
+
+    # get the user ids
+    user_ids = [item[1] for item in embeddings_userids]
+
+    return embeddings, user_ids
 
 def get_unlabeled_clusters():
     """
@@ -193,10 +167,16 @@ def get_unlabeled_clusters():
     # get a cursor
     c = conn.cursor()
 
-    # get the clusters that have not been labeled
+    # get the clusters that have not been labeled. order by size of the cluster
     c.execute(
         """
-            SELECT DISTINCT cluster_id FROM users WHERE label = 0
+            SELECT 
+                cluster_id FROM users 
+            WHERE label = 0 
+            GROUP BY 
+                cluster_id 
+            ORDER BY 
+                COUNT(*) DESC
         """
     )
 
@@ -227,7 +207,12 @@ def get_user(user_id):
     # get the user
     c.execute(
         """
-            SELECT * FROM users WHERE user_id = ?
+            SELECT 
+                * 
+            FROM 
+                users 
+            WHERE 
+                user_id = ?
         """,
         (user_id,)
     )
@@ -269,28 +254,39 @@ def label_users(annot_information):
         user_ids = cluster_annot['user_id'].unique()
 
         # get the max label for this cluster
-        max_label = cluster_annot['label'].value_counts().idxmax()
+        max_label = int(cluster_annot['label'].value_counts().idxmax())
 
         # update db to reflect the labels for this cluster
         c.execute(
             """
-                UPDATE users SET label = ? WHERE cluster_id = ?;
+                UPDATE 
+                    users 
+                SET 
+                    label = ? 
+                WHERE 
+                    cluster_id = ?;
             """,
-            (2 if max_label == 'Yes' else 1, cluster_id)
+            (max_label, int(cluster_id))
         )
 
         # iterate over the annotated users in this cluster and update db for each user
         for user_id in user_ids:
 
             # get the label for this user
-            label = cluster_annot[cluster_annot['user_id'] == user_id]['label'].values[0]
+            label = int(cluster_annot[cluster_annot['user_id'] == user_id]['label'].values[0])
 
             # update the db
             c.execute(
                 """
-                    UPDATE users SET label = ? WHERE user_id = ?;
+                    UPDATE 
+                        users 
+                    SET 
+                        label = ? 
+                    WHERE 
+                        user_id = ?
+                        AND cluster_id = ?
                 """,
-                (2 if label == 'Yes' else 1, user_id)
+                (label, int(user_id), int(cluster_id))
             )
         
         # commit the changes
