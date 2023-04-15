@@ -98,7 +98,9 @@ def getProbability(items, probabilties):
     simulated_cluster_probabilities = [probabilties[i] for i in items]
     return sum(simulated_cluster_probabilities)/len(simulated_cluster_probabilities)
 
-
+def getGroundTruthScore(items, ground_truths):
+    simulated_cluster_probabilities = [ground_truths[i] for i in items]
+    return sum(simulated_cluster_probabilities)/len(simulated_cluster_probabilities)
 
 
 def plotHeterogenity(id_embedding_probability_file):
@@ -120,7 +122,8 @@ def plotHeterogenity(id_embedding_probability_file):
             np_embedding = string_embedding.astype(np.float64)
             np_embeddings.append(np_embedding)
             probabilities.append(user[2])
-            ground_truths.append(user[3])
+            swapped = user[3] ^ 1
+            ground_truths.append(swapped)
         print(len(probabilities))
         print(len(ground_truths))
         print(len(np_embeddings))
@@ -154,16 +157,20 @@ def plotHeterogenity(id_embedding_probability_file):
 
     cluster_sizes = []
     cluster_heterogenities = []
+    cluster_scores_ground_truth = []
     while len(remaining_clusters) > 0:
         current_cluster_idx = remaining_clusters.pop(0)
         current_cluster_items = getClusterItemInds(current_cluster_idx, Z)    
         # heterogenity = getHeterogenity(current_cluster_items, ground_truths)
         heterogenity = getProbability(current_cluster_items, probabilities)
+        ground_truth = getGroundTruthScore(current_cluster_items, ground_truths)
         # if heterogenity < 1:
-        if len(current_cluster_items) < 100:
-            cluster_sizes.append(len(current_cluster_items))
-            cluster_heterogenities.append(heterogenity)
-            if heterogenity < .5:
+        if len(current_cluster_items) < 100 and len(current_cluster_items) > 7:
+            if heterogenity > .64:
+                print(len(current_cluster_items))
+                cluster_sizes.append(len(current_cluster_items))
+                cluster_heterogenities.append(heterogenity)
+                cluster_scores_ground_truth.append(ground_truth)
                 selected_embeddings = [np_embeddings[i] for i in current_cluster_items]
                 selected_userids = [user_id[i] for i in current_cluster_items]
                 # print(selected_embeddings)
@@ -187,6 +194,10 @@ def plotHeterogenity(id_embedding_probability_file):
 
     # Plotting
     # plt.scatter(cluster_sizes, cluster_heterogenities)
+    # plt.show()
+
+    plt.scatter(cluster_heterogenities, cluster_scores_ground_truth)
+    plt.show()
     # plt.savefig(os.path.splitext(id_embedding_probability_file)[0] + '.png')
 
     # Handoff to UI

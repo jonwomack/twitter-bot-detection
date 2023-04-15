@@ -13,7 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # global config
 root_path = os.path.join(os.path.dirname(__file__), '..')
-db_name = '/user1/tbd1.db'
+db_name = 'tbd.db'
 db_path = os.path.join(root_path, db_name)
 
 def init_database(reset=False):
@@ -321,53 +321,55 @@ def get_all_users():
 
     return users
 
-userid_to_ground_truth = {}
-with open("../datasets/twibot-20/label.csv", 'r') as file:
-    csvreader = csv.reader(file)
-    next(csvreader, None) # skip first row with column titles
-    for row in csvreader:
-        userid_to_ground_truth[row[0]] = row[1]
+
+def evalutate_predictions():
+    userid_to_ground_truth = {}
+    with open("../datasets/twibot-20/label.csv", 'r') as file:
+        csvreader = csv.reader(file)
+        next(csvreader, None) # skip first row with column titles
+        for row in csvreader:
+            userid_to_ground_truth[row[0]] = row[1]
 
 
-all_users = get_all_users()
-cluster_numbers = []
-labels = []
-user_ids = []
+    all_users = get_all_users()
+    cluster_numbers = []
+    labels = []
+    user_ids = []
 
-correct_predictions = 0
-incorrect_predictions = 0
+    correct_predictions = 0
+    incorrect_predictions = 0
 
 
 
-for i in range(0, len(all_users)):
-    cluster_numbers.append(all_users[i][1])
-    labels.append(all_users[i][2])
-    user_id = "u" + all_users[i][0]
-    predicted_label = all_users[i][2]
+    for i in range(0, len(all_users)):
+        cluster_numbers.append(all_users[i][1])
+        labels.append(all_users[i][2])
+        user_id = "u" + all_users[i][0]
+        predicted_label = all_users[i][2]
 
-    # print(type(user_id))
-    # print(type(list(userid_to_ground_truth.keys())[0]))
-    try:
-        ground_truth = userid_to_ground_truth[user_id]
-        if ground_truth == 'human':
-            classification = 1
-        elif ground_truth == 'bot':
-            classification = 0
-        if predicted_label == classification:
-            correct_predictions += 1
-        else:
-            incorrect_predictions += 1
-    except:
-        continue
+        # print(type(user_id))
+        # print(type(list(userid_to_ground_truth.keys())[0]))
+        try:
+            ground_truth = userid_to_ground_truth[user_id]
+            if ground_truth == 'human':
+                classification = 1
+            elif ground_truth == 'bot':
+                classification = 0
+            if predicted_label == classification:
+                correct_predictions += 1
+            else:
+                incorrect_predictions += 1
+        except:
+            continue
 
-print(correct_predictions)
-print(incorrect_predictions)
-print(len(all_users))
-print(correct_predictions + incorrect_predictions)
-print(correct_predictions/len(all_users))
-    
+    print(correct_predictions)
+    print(incorrect_predictions)
+    print(len(all_users))
+    print(correct_predictions + incorrect_predictions)
+    print(correct_predictions/len(all_users))
+        
 
-    
-# print(set(cluster_numbers))
-print(set(labels))
+        
+    # print(set(cluster_numbers))
+    print(set(labels))
 
