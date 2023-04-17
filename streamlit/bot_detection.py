@@ -74,7 +74,7 @@ def embed_tweet(twitter_user_id):
 
     # ekse, return an error message
     else:
-        html = f"<h2 style='color:white;'> There was an error while embedding tweet</h2>"
+        html = f"<h2 style='color:white;'> There was an error while embedding this profile. </h2>"
 
     return html
 @st.cache_data
@@ -168,10 +168,9 @@ def run_ui():
                 components.html(embed_tweet(twitter_user_id), height=500, scrolling=True)
 
                 # get user information from db and display
-                user = get_user(twitter_user_id)
+                user = get_user(twitter_user_id, cluster_id)
 
                 user_id = user[0]
-                cluster_id = user[1]
                 label = user[2]
 
                 # display information as a table

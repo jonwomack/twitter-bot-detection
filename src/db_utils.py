@@ -191,11 +191,12 @@ def get_unlabeled_clusters():
 
     return clusters
 
-def get_user(user_id):
+def get_user(user_id, cluster_id):
     """
     Return all information about a user
     Args:
         user_id (str): twitter user id
+        cluster_id (int): cluster id
     """
 
     # open a connection to the database
@@ -213,8 +214,9 @@ def get_user(user_id):
                 users 
             WHERE 
                 user_id = ?
+                AND cluster_id = ?
         """,
-        (user_id,)
+        (user_id, cluster_id)
     )
 
     # get the user
