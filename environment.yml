@@ -23,71 +23,150 @@ dependencies:
   - xz=5.2.10=h5eee18b_1
   - zlib=1.2.13=h5eee18b_0
   - pip:
+      - aiofiles==22.1.0
+      - aiosqlite==0.18.0
       - altair==4.2.2
+      - anyio==3.6.2
+      - argon2-cffi==21.3.0
+      - argon2-cffi-bindings==21.2.0
+      - arrow==1.2.3
       - asttokens==2.2.1
       - attrs==22.2.0
+      - babel==2.11.0
       - backcall==0.2.0
       - backports-zoneinfo==0.2.1
+      - beautifulsoup4==4.11.2
+      - bhtsne==0.1.9
+      - bleach==6.0.0
       - blinker==1.5
       - cachetools==5.3.0
+      - cffi==1.15.1
       - charset-normalizer==3.0.1
       - click==8.1.3
+      - comm==0.1.2
+      - contourpy==1.0.7
+      - cycler==0.11.0
+      - cython==0.29.33
+      - debugpy==1.6.6
       - decorator==5.1.1
+      - defusedxml==0.7.1
       - entrypoints==0.4
       - executing==1.2.0
+      - fastjsonschema==2.16.2
+      - fonttools==4.39.0
+      - fqdn==1.5.1
       - gitdb==4.0.10
       - gitpython==3.1.30
       - idna==3.4
       - importlib-metadata==6.0.0
       - importlib-resources==5.10.2
+      - ipykernel==6.21.1
       - ipython==8.9.0
+      - ipython-genutils==0.2.0
+      - isoduration==20.11.0
       - jedi==0.18.2
       - jinja2==3.1.2
+      - joblib==1.2.0
+      - json5==0.9.11
       - jsonpickle==3.0.1
+      - jsonpointer==2.3
       - jsonschema==4.17.3
+      - jupyter-client==8.0.2
+      - jupyter-core==5.2.0
+      - jupyter-events==0.5.0
+      - jupyter-server==2.2.1
+      - jupyter-server-fileid==0.6.0
+      - jupyter-server-terminals==0.4.4
+      - jupyter-server-ydoc==0.6.1
+      - jupyter-ydoc==0.2.2
+      - jupyterlab==3.6.1
+      - jupyterlab-pygments==0.2.2
+      - jupyterlab-server==2.19.0
+      - kiwisolver==1.4.4
       - markdown-it-py==2.1.0
       - markupsafe==2.1.2
+      - matplotlib==3.7.1
       - matplotlib-inline==0.1.6
       - mdurl==0.1.2
+      - mistune==2.0.4
+      - nbclassic==0.5.1
+      - nbclient==0.7.2
+      - nbconvert==7.2.9
+      - nbformat==5.7.3
+      - nest-asyncio==1.5.6
       - networkx==3.0
+      - notebook==6.5.2
+      - notebook-shim==0.2.2
       - numpy==1.24.1
+      - oauthlib==3.2.2
       - packaging==23.0
       - pandas==1.5.3
+      - pandocfilters==1.5.0
       - parso==0.8.3
       - pexpect==4.8.0
       - pickleshare==0.7.5
       - pillow==9.4.0
       - pkgutil-resolve-name==1.3.10
+      - platformdirs==2.6.2
+      - plotly==5.13.1
+      - prometheus-client==0.16.0
       - prompt-toolkit==3.0.36
       - protobuf==3.20.3
+      - psutil==5.9.4
       - ptyprocess==0.7.0
       - pure-eval==0.2.2
       - pyarrow==11.0.0
+      - pycparser==2.21
       - pydeck==0.8.0
       - pygments==2.14.0
       - pympler==1.0.1
+      - pyparsing==3.0.9
       - pyrsistent==0.19.3
       - python-dateutil==2.8.2
+      - python-json-logger==2.0.4
       - pytz==2022.7.1
       - pytz-deprecation-shim==0.1.0.post0
       - pyvis==0.3.1
+      - pyyaml==6.0
+      - pyzmq==25.0.0
       - requests==2.28.2
+      - requests-oauthlib==1.3.1
+      - rfc3339-validator==0.1.4
+      - rfc3986-validator==0.1.1
       - rich==13.3.1
+      - scikit-learn==1.2.2
+      - scipy==1.10.1
       - semver==2.13.0
+      - send2trash==1.8.0
       - six==1.16.0
       - smmap==5.0.0
+      - sniffio==1.3.0
+      - soupsieve==2.3.2.post1
       - stack-data==0.6.2
-      - streamlit==1.17.0
+      - streamlit==1.20.0
+      - streamlit-plotly-events==0.0.6
+      - tenacity==8.2.2
+      - terminado==0.17.1
+      - threadpoolctl==3.1.0
+      - tinycss2==1.2.1
       - toml==0.10.2
+      - tomli==2.0.1
       - toolz==0.12.0
       - tornado==6.2
       - traitlets==5.9.0
+      - tweepy==4.13.0
       - typing-extensions==4.4.0
       - tzdata==2022.7
       - tzlocal==4.2
+      - uri-template==1.2.0
       - urllib3==1.26.14
       - validators==0.20.0
       - watchdog==2.2.1
       - wcwidth==0.2.6
+      - webcolors==1.12
+      - webencodings==0.5.1
+      - websocket-client==1.5.1
+      - y-py==0.5.5
+      - ypy-websocket==0.8.2
       - zipp==3.12.0
 prefix: /home/anip/miniconda3/envs/tbd
