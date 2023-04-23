@@ -9,6 +9,8 @@ from sklearn.manifold import TSNE
 import streamlit as st
 import streamlit.components.v1 as components
 import plotly.express as px
+import altair as alt
+from altair_saver import save
 
 from src.db_utils import get_unlabeled_clusters, get_cluster_embeddings_userids, get_user, label_users
 
@@ -103,16 +105,19 @@ def generate_tsne_graph(cluster):
     # add column for user ids
     df_embeddings_2d['user_id'] = userids
 
-    # create a scatter plot
-    fig = px.scatter(df_embeddings_2d, x='x', y='y', width=800, height=800, hover_data=['user_id'])
+    # create an interactive scatter plot
+    chart = alt.Chart(df_embeddings_2d).mark_circle(size=100).encode(
+        x='x',
+        y='y',
+        tooltip=['user_id'],
+        color=alt.value('#00acee'),
+    ).properties(
+        width=800,
+        height=800,
+    ).interactive()
 
-    # add a title to the plot
-    fig.update_layout(title_text='t-SNE Visualization for the given cluster')
+    return chart
 
-    # convert plotly figure to html
-    html = fig.to_html()
-
-    return html
 
 def run_ui():
 
@@ -142,8 +147,11 @@ def run_ui():
                 cluster_embeds, cluster_userids = get_cluster_embeddings_userids(cluster_id)
 
                 # generate graph for the selected cluster
-                html = generate_tsne_graph([cluster_embeds, cluster_userids])
-                components.html(html, width=800, height=800)
+                chart = generate_tsne_graph([cluster_embeds, cluster_userids])
+
+                # center title
+                st.markdown(f"<h4 style='text-align: center; color: white;'> t-SNE Visualization for cluster {cluster_id} </h4>", unsafe_allow_html=True)
+                st.altair_chart(chart, use_container_width=True)
 
 
     # human in loop section
