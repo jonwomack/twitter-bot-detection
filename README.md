@@ -28,6 +28,23 @@
     ```
 
 ## EXECUTION
+- Produce embeddings of local network structure using [GraphWaveMachine](https://github.com/benedekrozemberczki/GraphWaveMachine)
+
+    ```bash
+    python3 src/main.py --input data/graphwave-database-twibot22-all-labels-text.txt --output output/twi22approx16sample64.csv --sample-number 64 --mechanism approximate --approximation 16    
+    ```
+
+- Store embeddings and NLP bot likelihoods
+
+    ```bash
+    python3 embeddings-and-probabilities.py --path ../twi22approx16sample64.csv
+    ```
+    
+- Produce clusters and select clusters
+
+    ```bash
+    python3 embeddings-and-probabilities.py --path ../twi22approx16sample64.csv
+    ```
 
 - As the first step, we need to first load the cluster information into the system, using the given script. You can find the pkl file `clusters.pkl` inside clustering folder. The pkl file contains the cluster information for accounts along with their embeddings. The --reset flag is used to reset the DB. If you want to load new clusters into an existing DB, then set reset to 0. Following is a sample command to load the clusters into the system.
 
