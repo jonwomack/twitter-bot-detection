@@ -28,17 +28,41 @@
     ```
 
 ## EXECUTION
+- Produce NLP bot-likelihoods by downloading the data by contacting Shangbin Feng or running a sample of 10k tweets found in tweet-lstm/datasets/Twibot-20/sample.
+    - Update the conda environment using
+    ```bash
+    pip install -r tweet-lstm/requirements.txt
+    ```
+    - If running the sample, run 
+    ```bash
+    python tweet-lstm/bilstm_attention.py
+    ```
+    ```bash
+    python tweet-lstm/postprocess.py
+    ```
+    - If running the Twibot-20 data, change the json_file in data_processor.py to 'tweet-lstm/datasets/Twibot-20/Twibot-20.json' and run
+    ```bash
+    python tweet-lstm/preprocess.py
+    ```
+    ```bash
+    python tweet-lstm/bilstm_attention.py
+    ```
+    ```bash
+    python tweet-lstm/postprocess.py
+    ```
+    - The user bot-scores will be stored in 'tweet-lstm/out/Twibot-20_predictions.csv'
+    
 - Produce embeddings of local network structure using [GraphWaveMachine](https://github.com/benedekrozemberczki/GraphWaveMachine)
 
     ```bash
-    python3 src/main.py --input data/graphwave-database-twibot22-all-labels-text.txt --output output/twi22approx16sample64.csv --sample-number 64 --mechanism approximate --approximation 16    
+    python3 src/main.py --input data/graphwave-database-twibot22-all-labels-text.txt --output output/twi22approx16sample64.csv --sample-number 64 --mechanism approximate --approximation 16
     ```
 
-- Store embeddings and NLP bot likelihoods
+<!-- - Store embeddings and NLP bot likelihoods
 
     ```bash
     python3 embeddings-and-probabilities.py --path ../twi22approx16sample64.csv
-    ```
+    ``` -->
     
 - Produce clusters and select clusters
 
