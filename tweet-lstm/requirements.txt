@@ -1,0 +1,7 @@
+ijson
+numpy
+numpydoc
+pandas
+scikit-learn
+torch
+tqdm

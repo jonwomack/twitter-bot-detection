@@ -1,0 +1,21 @@
+To run this BiLSTM:
+
+1. Make sure the packages in requirements.txt are installed in a Python 3.7 environment.
+
+2. Run a sample of 10k tweets by running python bilstm_attention.py
+
+OR
+
+2. Download the datasets folder at
+https://drive.google.com/drive/folders/1YbahnaASi-fbxlsPpxVPrPYC1lPlUP6J?usp=sharing
+
+3. Run python preprocess.py (~ 30 minutes)
+
+4. Change the json_file in data_processor.py to './datasets/Twibot-20/Twibot-20.json'
+
+4. Run python bilstm_attention.py (~ 10 hours)
+
+5. Run python postprocess.py
+
+The output is a csv file with the twitter user ID beginning with 'u'
+and the probability the user is a bot, as the mean of the probability of their tweets.
