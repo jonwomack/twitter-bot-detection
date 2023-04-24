@@ -76,7 +76,7 @@
 
     ```bash
     cd scripts
-    python load_clusters.py --file ../clustering/clusters.pkl --reset 1
+    python load_clusters.py --file ../clustering/final-clusters.pkl --reset 1
     ```
 
     - After a successful run, you should see a message like this in the terminal
