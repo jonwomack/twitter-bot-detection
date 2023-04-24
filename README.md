@@ -28,29 +28,31 @@
     ```
 
 ## EXECUTION
-- Produce NLP bot-likelihoods by downloading the data by contacting Shangbin Feng or running a sample of 10k tweets found in tweet-lstm/datasets/Twibot-20/sample.
+- Produce NLP bot-likelihoods
+    - Download the data by contacting Shangbin Feng from the instructions on the [Twibot-20 repository](https://github.com/BunsenFeng/TwiBot-20) to <code>tweet-lstm/datasets/Twibot-20/</code> or run a sample of 10k tweets found in <code>tweet-lstm/datasets/Twibot-20/sample/</code>.
+    - Download the [Twitter GloVe embeddings](https://nlp.stanford.edu/projects/glove/) and save <code>glove.twitter.27B.25d.txt</code> to <code>tweet-lstm/datasets/</code>
     - Update the conda environment using
-    ```bash
-    pip install -r tweet-lstm/requirements.txt
-    ```
+        ```bash
+        pip install -r tweet-lstm/requirements.txt
+        ```
     - If running the sample, run 
-    ```bash
-    python tweet-lstm/bilstm_attention.py
-    ```
-    ```bash
-    python tweet-lstm/postprocess.py
-    ```
-    - If running the Twibot-20 data, change the json_file in data_processor.py to 'tweet-lstm/datasets/Twibot-20/Twibot-20.json' and run
-    ```bash
-    python tweet-lstm/preprocess.py
-    ```
-    ```bash
-    python tweet-lstm/bilstm_attention.py
-    ```
-    ```bash
-    python tweet-lstm/postprocess.py
-    ```
-    - The user bot-scores will be stored in 'tweet-lstm/out/Twibot-20_predictions.csv'
+        ```bash
+        python tweet-lstm/bilstm_attention.py
+        ```
+        ```bash
+        python tweet-lstm/postprocess.py
+        ```
+    - If running the Twibot-20 data, change the JSON file in <code>data_processor.py</code> to <code>tweet-lstm/datasets/Twibot-20/Twibot-20.json</code> and run
+        ```bash
+        python tweet-lstm/preprocess.py
+        ```
+        ```bash
+        python tweet-lstm/bilstm_attention.py
+        ```
+        ```bash
+        python tweet-lstm/postprocess.py
+        ```
+    - The user bot-scores will be stored in <code>tweet-lstm/out/Twibot-20_user_predictions.csv</code>
     
 - Produce embeddings of local network structure using [GraphWaveMachine](https://github.com/benedekrozemberczki/GraphWaveMachine)
 
